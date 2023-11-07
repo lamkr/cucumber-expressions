@@ -32,8 +32,8 @@ class TreeRegexp {
         stack.push(groupBuilder);
       } else if (char == ')'.codeUnits.first && !escaping && !charClass) {
         final gb = stack.pop();
-        if (gb.isCapturing) {
-          gb.source = source.getRange(groupStart.startIndex + 1, index);
+        if (gb.capturing) {
+          gb.source = source.getRange(gb.startIndex + 1, index).toString();
           stack.peek().add(gb);
         } else {
           gb.moveChildrenTo(stack.peek());

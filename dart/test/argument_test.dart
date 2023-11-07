@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('exposes_parameter_type', () {
-    final treeRegexp = TreeRegexp('three (.*) mice');
+    final treeRegexp = TreeRegexp.fromString(r'three (.*) mice');
     final parameterTypeRegistry = ParameterTypeRegistry(Locale.ENGLISH);
     List<Argument<dynamic>> arguments = Argument.build(
       treeRegexp.match("three blind mice"),
