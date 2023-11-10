@@ -1,49 +1,53 @@
 import 'package:dart/src/core/locale.dart';
-import 'package:dart/src/core/type_ex.dart';
+import 'package:dart/src/cucumber_expression_exception.dart';
 import 'package:dart/src/parameter_type.dart';
 import 'package:dart/src/parameter_type_registry.dart';
+import 'package:dart/src/transformer.dart';
 import 'package:test/test.dart';
 
+class Name {
+  Name(String s);
+}
+
+class Person {
+  Person(String s);
+}
+
+class Place {
+  Place(String s);
+}
+
+class TransformerName implements Transformer<Name> {
+  @override
+  Name transform(String arg) => Name(arg);
+}
+
+class TransformerPerson implements Transformer<Person> {
+  @override
+  Person transform(String arg) => Person(arg);
+}
+
+class TransformerPlace implements Transformer<Place> {
+  @override
+  Place transform(String arg) => Place(arg);
+}
+
 void main() {
+  const capitalisedWord = r"[A-Z]+\w+";
   final registry = ParameterTypeRegistry(Locale.english);
 
-  test('Does not allow ignore flag on regexp', () {
+  test('does_not_allow_more_than_one_preferential_parameter_type_for_each_regexp', () {
+    registry.defineParameterType( ParameterType("name", capitalisedWord, Name, TransformerName(), false, true));
+    registry.defineParameterType( ParameterType("person", capitalisedWord, Person, TransformerPerson(), false, false));
+
     try {
-      ParameterType('case-insensitive', r'/[a-z]+/i', String, (s) => s, true, true);
+      registry.defineParameterType( ParameterType('place', r'/[a-z]+/i', Place, TransformerPlace(), false, true) );
       assert(false, 'It should cause an error');
     }
     catch (e) {
-      expect(e, isA<Error>());
-      expect(e.toString(), "ParameterType Regexps can't use flag 'i'");
+      expect(e, isA<CucumberExpressionException>());
+      expect(e.toString(), "There can only be one preferential parameter type per regexp. The regexp /[A-Z]+\\w+/ is used for two preferential parameter types, {name} and {place}");
     }
   });
-
-  test('Has a type name for {int}', () {
-    final parameterTypeRegistry = ParameterTypeRegistry();
-    final elem = parameterTypeRegistry.lookupByTypeName('int');
-    expect(elem.type.name, 'num');
-  });
 }
-/*
-it('has a type name for {int}', () => {
-  const r = new ParameterTypeRegistry()
-  const t = r.lookupByTypeName('int')!
-  // @ts-ignore
-  assert.strictEqual(t.type.name, 'Number')
-})
 
-it('has a type name for {bigint}', () => {
-const r = new ParameterTypeRegistry()
-const t = r.lookupByTypeName('biginteger')!
-// @ts-ignore
-assert.strictEqual(t.type.name, 'BigInt')
-})
-
-it('has a type name for {word}', () => {
-const r = new ParameterTypeRegistry()
-const t = r.lookupByTypeName('word')!
-// @ts-ignore
-assert.strictEqual(t.type.name, 'String')
-})
-})
-*/

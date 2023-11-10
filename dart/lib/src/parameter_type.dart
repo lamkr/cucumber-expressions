@@ -2,11 +2,11 @@ import 'package:collection/collection.dart';
 
 import 'core/null_safety_object.dart';
 import 'cucumber_expression_exception.dart';
+import 'transformer.dart';
 
-typedef TransformFunction = void Function(dynamic);
-
-class ParameterType implements NullSafetyObject {
+class ParameterType implements Comparable<ParameterType>, NullSafetyObject {
   static final invalid = _ParameterTypeInvalid();
+
 /*
 JS:
   const ILLEGAL_PARAMETER_NAME_PATTERN = /([[\]()$.|?*+])/
@@ -21,6 +21,7 @@ Java:
 */
   static final illegalParameterNamePattern = r"([{}()\\/])";
   static final unescapePattern = r"(\\([[$.|?*+]]))/g";
+
 /*
 Go:
   var HAS_FLAG_REGEXP = regexp.MustCompile(`\(\?[imsU-]+(:.*)?\)`)
@@ -34,34 +35,32 @@ Ruby:
   final String name;
   final List<String> regexps;
   final Type type;
-  final TransformFunction transform;
+  final Transformer transform;
   final bool useForSnippets;
   final bool preferForRegexpMatch;
 
-  ParameterType(
-    String name,
-    String regexp,
-    Type type,
-    TransformFunction transform, [
-    bool useForSnippets = true,
-    bool preferForRegexpMatch = false,
-  ]) : this.fromRegExpList(
-          name,
-          <String>[regexp],
-          type,
-          transform,
-          useForSnippets,
-          preferForRegexpMatch,
-        );
+  ParameterType(String name,
+      String regexp,
+      Type type,
+      Transformer transform, [
+        bool useForSnippets = true,
+        bool preferForRegexpMatch = false,
+      ]) : this.fromRegExpList(
+    name,
+    <String>[regexp],
+    type,
+    transform,
+    useForSnippets,
+    preferForRegexpMatch,
+  );
 
-  ParameterType.fromRegExpList(
-    this.name,
-    this.regexps,
-    this.type,
-    this.transform, [
-    this.useForSnippets = true,
-    this.preferForRegexpMatch = false,
-  ]) {
+  ParameterType.fromRegExpList(this.name,
+      this.regexps,
+      this.type,
+      this.transform, [
+        this.useForSnippets = true,
+        this.preferForRegexpMatch = false,
+      ]) {
     checkParameterTypeName(name);
   }
 
@@ -96,18 +95,21 @@ Ruby:
   bool operator ==(Object other) {
     Function deepEqual = const DeepCollectionEquality().equals;
     return (other is ParameterType) &&
-      other.name == name &&
-      deepEqual(other.regexps, regexps) &&
-      other.type == type &&
-      other.transform == transform &&
-      other.useForSnippets == useForSnippets &&
-      other.preferForRegexpMatch == preferForRegexpMatch;
+        other.name == name &&
+        deepEqual(other.regexps, regexps) &&
+        other.type == type &&
+        other.transform == transform &&
+        other.useForSnippets == useForSnippets &&
+        other.preferForRegexpMatch == preferForRegexpMatch;
   }
+
+  @override
+  int compareTo(ParameterType other) => hashCode-other.hashCode;
 }
 
 class _ParameterTypeInvalid extends ParameterType {
   _ParameterTypeInvalid():
-      super('', '', Null, (dynamic){} );
+      super('', '', Null, Transformer.invalid );
 
   @override
   bool get isInvalid => !isValid;

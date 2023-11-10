@@ -1,12 +1,13 @@
 import 'package:dart/src/core/type_ex.dart';
 import 'package:dart/src/parameter_type.dart';
 import 'package:dart/src/parameter_type_registry.dart';
+import 'package:dart/src/transformer.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('Does not allow ignore flag on regexp', () {
     try {
-      ParameterType('case-insensitive', r'/[a-z]+/i', String, (s) => s, true, true);
+      ParameterType('case-insensitive', r'/[a-z]+/i', String, TransformerString(), true, true);
       assert(false, 'It should cause an error');
     }
     catch (e) {
