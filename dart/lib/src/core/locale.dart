@@ -57,20 +57,20 @@ class Locale {
   final String? _countryCode;
 
   @override
-  bool operator ==(Object arg) {
-    if (identical(this, arg)) {
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
       return true;
     }
-    if (arg is! Locale) {
+    if (other is! Locale) {
       return false;
     }
-    var other = arg;
+    var another = other;
     final countryCode = _countryCode;
-    final otherCountryCode = other.countryCode;
-    return other.languageCode == languageCode
-        && (other.countryCode == countryCode // Treat '' as equal to null.
+    final otherCountryCode = another.countryCode;
+    return another.languageCode == languageCode
+        && (another.countryCode == countryCode // Treat '' as equal to null.
             || otherCountryCode != null && otherCountryCode.isEmpty && countryCode == null
-            || countryCode != null && countryCode.isEmpty && other.countryCode == null);
+            || countryCode != null && countryCode.isEmpty && another.countryCode == null);
   }
 
   @override

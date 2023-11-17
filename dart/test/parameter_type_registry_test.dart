@@ -41,13 +41,27 @@ void main() {
     registry.defineParameterType( ParameterType("person", capitalisedWord, Person, TransformerPerson(), false, false));
 
     try {
-      registry.defineParameterType( ParameterType('place', r'/[a-z]+/i', Place, TransformerPlace(), false, true) );
+      registry.defineParameterType( ParameterType('place', capitalisedWord, Place, TransformerPlace(), false, true) );
       assert(false, 'It should cause an error');
     }
     catch (e) {
       expect(e, isA<CucumberExpressionException>());
-      expect(e.toString(), "There can only be one preferential parameter type per regexp. The regexp /[A-Z]+\\w+/ is used for two preferential parameter types, {name} and {place}");
+      expect((e as CucumberExpressionException).message, "There can only be one preferential parameter type per regexp. The regexp /[A-Z]+\\w+/ is used for two preferential parameter types, {name} and {place}");
     }
   });
+
+  // TODO to be completed...
+
+/*
+  test('looks_up_preferential_parameter_type_by_regexp', () {
+    final name = ParameterType("name", capitalisedWord, Name, TransformerName(), false, false);
+    final person = ParameterType("person", capitalisedWord, Person, TransformerPerson(), false, true);
+    final place = ParameterType('place', capitalisedWord, Place, TransformerPlace(), false, false);
+    registry.defineParameterType( name );
+    registry.defineParameterType( person );
+    registry.defineParameterType( place );
+    final pattern = Pattern.compile("([A-Z]+\\w+) and ([A-Z]+\\w+)");
+    expect(person, registry.lookupByRegexp(capitalisedWord, pattern, "Lisa and Bob"));
+  });*/
 }
 
