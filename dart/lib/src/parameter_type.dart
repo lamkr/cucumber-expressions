@@ -82,6 +82,8 @@ Ruby:
   @override
   bool get isInvalid => !isValid;
 
+  int get weight => type is int ? 1000 : 0;
+
   @override
   int get hashCode =>
       name.hashCode ^

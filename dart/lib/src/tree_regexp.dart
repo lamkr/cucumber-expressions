@@ -64,4 +64,14 @@ class TreeRegexp {
     return source.elementAt(index + 3) == '='.codeUnits.first ||
         source.elementAt(index + 3) == '!'.codeUnits.first;
   }
+/* TO BE IMPLEMENTED
+  Group match(CharSequence s) {
+    final matcher = regexp.allMatches(s);
+    if (matcher.isEmpty()) {
+      return Group.invalid;
+    }
+    return groupBuilder.build(matcher, IntStream.rangeClosed(0, matcher.groupCount()).iterator());
+  }
+
+ */
 }

@@ -1,20 +1,103 @@
+import 'package:collection/collection.dart';
+
+import 'core/collections.dart';
 import 'parameter_type.dart';
 
 class GeneratedExpression {
+  static const dartKeywords = [
+    'Function',
+    'abstract',
+    'as',
+    'assert',
+    'async',
+    'await',
+    'base',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'covariant',
+    'default',
+    'deferred',
+    'do',
+    'dynamic',
+    'else',
+    'enum',
+    'export',
+    'extends',
+    'extension',
+    'external',
+    'factory',
+    'false',
+    'final',
+    'final',
+    'finally',
+    'for',
+    'get',
+    'hide',
+    'if',
+    'implements',
+    'import',
+    'in',
+    'interface',
+    'is',
+    'late',
+    'library',
+    'mixin',
+    'new',
+    'null',
+    'on',
+    'operator',
+    'part',
+    'required',
+    'rethrow',
+    'return',
+    'sealed',
+    'set',
+    'show',
+    'static',
+    'super',
+    'switch',
+    'sync',
+    'this',
+    'throw',
+    'true',
+    'try',
+    'typedef',
+    'var',
+    'void',
+    'when',
+    'while',
+    'with',
+    'yield',
+  ];
 
-  final String expressionTemplate;
+  final String _expressionTemplate;
   final List<ParameterType> parameterTypes;
 
-  GeneratedExpression(this.expressionTemplate, this.parameterTypes);
+  GeneratedExpression(this._expressionTemplate, this.parameterTypes);
+
+  static bool isDartKeyword(String keyword) =>
+      dartKeywords.binarySearch(keyword) >= 0;
 
   String get source {
-    throw UnimplementedError();
-    /*
-    List<String> parameterTypeNames = ArrayList<>();
-    for (ParameterType parameterType in parameterTypes) {
-      String name = parameterType.name;
-      parameterTypeNames.add(name);
-    }
-    return String.format(expressionTemplate, parameterTypeNames.toArray());*/
+    final parameterTypeNames = <String>[];
+    final parameterTypesNames2 = parameterTypes.map((e) => e.name);
+    // TODO return String.format(_expressionTemplate, parameterTypeNames.toArray());
+    return _expressionTemplate;
   }
+
+  String getParameterName(String typeName, Map<String, int> usageByTypeName) {
+    final count = (usageByTypeName[typeName] ?? 0) + 1;
+    usageByTypeName[typeName] = count;
+    return count == 1 && !isDartKeyword(typeName)
+        ? typeName
+        : '$typeName$count';
+  }
+
+  List<String> getParameterNames() => parameterTypes
+      .map((parameterType) => getParameterName(parameterType.name, emptyMap))
+      .toList(growable: false);
 }
