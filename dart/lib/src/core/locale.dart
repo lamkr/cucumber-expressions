@@ -1,3 +1,6 @@
+import 'package:intl/locale.dart' as intl;
+final englishLocale = intl.Locale.parse('en_US');
+/*
 class Locale {
 
   static const english = Locale('en', 'us');
@@ -100,4 +103,4 @@ class Locale {
     }
     return out.toString();
   }
-}
+}*/

@@ -16,14 +16,31 @@ class ParameterTypeMatcher implements Comparable<ParameterTypeMatcher> {
 
   bool advanceToAndFind(int newMatchPos) {
     final matches = _regExp.allMatches(_text, newMatchPos);
-    if (matches.isNotEmpty) {
-      _match = matches.first;
+    for( final match in matches) {
+      _match = match;
       if(_groupHasWordBoundaryOnBothSides()) {
         return true;
       }
     }
     return false;
   }
+
+  /*bool advanceToAndFind(int newMatchPos) {
+    final matches = _regExp.allMatches(_text, newMatchPos);
+    if (matches.isNotEmpty) {
+      for( final match in matches) {
+        if(_groupHasWordBoundaryOnBothSides()) {
+          _match = match;
+          return true;
+        }
+      }
+      _match = matches.first;
+      if(_groupHasWordBoundaryOnBothSides()) {
+        return true;
+      }
+    }
+    return false;
+  }*/
 
   bool _groupHasWordBoundaryOnBothSides() =>
       _groupHasLeftWordBoundary() && _groupHasRightWordBoundary();

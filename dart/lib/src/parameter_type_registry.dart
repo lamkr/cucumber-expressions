@@ -1,10 +1,14 @@
 import 'dart:collection';
-import 'package:dart/src/core/locale.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/locale.dart';
 import 'ambiguous_parameter_type_exception.dart';
+import 'build_in_parameter_transformer.dart';
+import 'core/locale.dart';
 import 'cucumber_expression_exception.dart';
 import 'cucumber_expression_generator.dart';
 import 'duplicate_typename_exception.dart';
 import 'generated_expression.dart';
+import 'parameter_by_type_transformer.dart';
 import 'parameter_type.dart';
 import 'transformer.dart';
 
@@ -15,6 +19,7 @@ class ParameterTypeRegistry {
 
   static final _integerRegExps = [
     RegExp(r'-?\d+').pattern,
+    RegExp(r'\d+').pattern,
   ];
 
   static const mustContainNumber = r'(?=.*\d.*)';
@@ -42,25 +47,64 @@ class ParameterTypeRegistry {
   static const stringApostrophe = r"'([^'\\]*(\\.[^'\\]*)*)'";
 
   static final _stringRegExps = [
-      RegExp(stringDoubleQuote).pattern,
-      RegExp(stringApostrophe).pattern,
+    RegExp(stringDoubleQuote).pattern,
+    RegExp(stringApostrophe).pattern,
   ];
 
-  final Locale locale;
+  late final Locale locale;
   final _parameterTypeByName = <String, ParameterType>{};
+
+  final ParameterByTypeTransformer defaultParameterTransformer;
 
   //final _parameterTypesByRegexp = <String, SplayTreeSet<ParameterType>>{};
   final _parameterTypesByRegexp = <String, Set<ParameterType>>{};
 
-  ParameterTypeRegistry([this.locale = Locale.english]) {
-    defineParameterType(ParameterType.fromRegExpList(
-        'int', _integerRegExps, int, TransformerInt()));
+  ParameterTypeRegistry([Locale? locale])
+      : this.withDefaultParameterTansformer(
+          BuiltInParameterTransformer(locale ?? englishLocale),
+          locale ?? englishLocale,
+        );
 
-    defineParameterType(ParameterType.fromRegExpList(
-        'double', _doubleRegExps, int, TransformerDouble()));
+  ParameterTypeRegistry.withDefaultParameterTansformer(
+      this.defaultParameterTransformer, this.locale) {
+    defineParameterType(
+      ParameterType.fromRegExpList(
+          'int', _integerRegExps, int, TransformerInt()),
+    );
 
-    defineParameterType(ParameterType.fromRegExpList(
-        'string', _stringRegExps, int, TransformerString()));
+    final localizedDecimalPattern = NumberFormat.decimalPattern(locale.languageCode);
+
+    List<String> localizedDoubleRegExps = _doubleRegExps
+        .map((regexp) =>
+          regexp
+              .replaceAll("{decimal}", localizedDecimalPattern.symbols.DECIMAL_SEP)
+              .replaceAll("{group}", localizedDecimalPattern.symbols.GROUP_SEP)
+              .replaceAll("{expnt}", localizedDecimalPattern.symbols.EXP_SYMBOL))
+        .toList(growable: false);
+
+    defineParameterType(
+      ParameterType.fromRegExpList(
+          'double', localizedDoubleRegExps, double, TransformerDouble()),
+    );
+
+    defineParameterType(
+      ParameterType.fromRegExpList(
+        'string',
+        _stringRegExps,
+        String,
+        TransformerString(defaultParameterTransformer),
+      ),
+    );
+
+    defineParameterType(
+      ParameterType.fromRegExpList(
+        'word',
+        _wordRegExps,
+        String,
+        TransformerWord(defaultParameterTransformer),
+        false,
+      ),
+    );
   }
 
   void defineParameterType(ParameterType parameterType) {
@@ -78,7 +122,7 @@ class ParameterTypeRegistry {
       if (!_parameterTypesByRegexp.containsKey(parameterTypeRegexp)) {
         _parameterTypesByRegexp[parameterTypeRegexp] = <ParameterType>{};
       }
-      final parameterTypes =
+      Set<ParameterType> parameterTypes =
           _parameterTypesByRegexp[parameterTypeRegexp] ?? <ParameterType>{};
       if (parameterTypes.isNotEmpty &&
           parameterTypes.first.preferForRegexpMatch &&

@@ -5,7 +5,7 @@ import 'package:dart/src/parameter_type_registry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final parameterTypeRegistry = ParameterTypeRegistry(Locale.english);
+  final parameterTypeRegistry = ParameterTypeRegistry(englishLocale);
 
   test('documents_expression_generation', () {
     final generator = CucumberExpressionGenerator(parameterTypeRegistry);

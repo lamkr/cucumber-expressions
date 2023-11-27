@@ -1,6 +1,8 @@
+import 'parameter_by_type_transformer.dart';
+
 /// Transformer for a [ParameterType] with zero or one capture groups.
 /// [T] is the type to transform to.
-abstract class Transformer<T> {
+abstract class Transformer<In, Out> {
   static const invalid = _InvalidTransformer();
   
   /// Transforms a string into to an object. The string is either taken
@@ -8,22 +10,53 @@ abstract class Transformer<T> {
   /// Nested capture groups are ignored. It throws an exception 
   /// if transformation failed.
   /// [arg] is the the value of the single capture group
-  T transform(String arg);
+  Out transform(In arg);
 }
 
-final class _InvalidTransformer implements Transformer<void> {
+final class _InvalidTransformer implements Transformer<void, void> {
   const _InvalidTransformer();
-  
+
   @override
-  void transform(String arg) {}
+  void transform(void arg) {}
 }
 
-final class TransformerInt implements Transformer<int> {
+/// Transformer for a [ParameterType] with (multiple) capture groups.
+abstract class CaptureGroupTransformer<T>
+{
+  /// Transforms multiple strings into to an object. The strings are taken from
+  /// the capture groups in the regular expressions in order. Nested capture
+  /// groups are ignored. If a capture group is optional the corresponding element
+  /// in the array may be null.
+  /// Throws exception if transformation failed.
+  T transform(List<String> args);
+}
+
+final class TransformerInt implements Transformer<String, int> {
   @override
   int transform(String arg) => int.parse(arg);
 }
 
-final class TransformerString implements Transformer<String> {
+final class TransformerDouble implements Transformer<String, double> {
   @override
-  String transform(String arg) => arg;
+  double transform(String arg) => double.parse(arg);
+}
+
+final class TransformerString implements Transformer<List<String>, String> {
+  final ParameterByTypeTransformer internalParameterTransformer;
+
+  TransformerString(this.internalParameterTransformer);
+
+  @override
+  String transform(List<String?> args) {
+    final arg = args[0] ?? args[1] ?? '';
+    return internalParameterTransformer.transform(
+        arg
+            .replaceAll(r'\\"', '"')
+            .replaceAll(r"\\'", "'"),
+        String,) as String;
+  }
+}
+
+final class TransformerWord extends TransformerString {
+  TransformerWord(super.internalParameterTransformer);
 }

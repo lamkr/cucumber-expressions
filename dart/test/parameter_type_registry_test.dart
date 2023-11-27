@@ -17,24 +17,24 @@ class Place {
   Place(String s);
 }
 
-class TransformerName implements Transformer<Name> {
+class TransformerName implements Transformer<String, Name> {
   @override
   Name transform(String arg) => Name(arg);
 }
 
-class TransformerPerson implements Transformer<Person> {
+class TransformerPerson implements Transformer<String, Person> {
   @override
   Person transform(String arg) => Person(arg);
 }
 
-class TransformerPlace implements Transformer<Place> {
+class TransformerPlace implements Transformer<String, Place> {
   @override
   Place transform(String arg) => Place(arg);
 }
 
 void main() {
   const capitalisedWord = r"[A-Z]+\w+";
-  final registry = ParameterTypeRegistry(Locale.english);
+  final registry = ParameterTypeRegistry(englishLocale);
 
   test('does_not_allow_more_than_one_preferential_parameter_type_for_each_regexp', () {
     registry.defineParameterType( ParameterType("name", capitalisedWord, Name, TransformerName(), false, true));
