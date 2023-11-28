@@ -3,8 +3,9 @@ import 'package:collection/collection.dart';
 import 'core/null_safety_object.dart';
 import 'cucumber_expression_exception.dart';
 import 'transformer.dart';
+import 'transformer_adaptor.dart';
 
-class ParameterType implements Comparable<ParameterType>, NullSafetyObject {
+class ParameterType<T> implements Comparable<ParameterType>, NullSafetyObject {
   static final invalid = _ParameterTypeInvalid();
 
 /*
@@ -35,32 +36,38 @@ Ruby:
   final String name;
   final List<String> regexps;
   final Type type;
-  final Transformer transform;
+  final Transformer transformer;
   final bool useForSnippets;
   final bool preferForRegexpMatch;
+  final bool isAnonymous;
 
-  ParameterType(String name,
-      String regexp,
-      Type type,
-      Transformer transform, [
-        bool useForSnippets = true,
-        bool preferForRegexpMatch = false,
-      ]) : this.fromRegExpList(
-    name,
-    <String>[regexp],
-    type,
-    transform,
-    useForSnippets,
-    preferForRegexpMatch,
-  );
+  ParameterType(
+    String name,
+    String regexp,
+    Type type,
+    Transformer transformer, [
+    bool useForSnippets = true,
+    bool preferForRegexpMatch = false,
+    bool isAnonymous = false,
+  ]) : this.fromRegExpList(
+          name,
+          <String>[regexp],
+          type,
+          transformer,
+          useForSnippets,
+          preferForRegexpMatch,
+          isAnonymous,
+        );
 
-  ParameterType.fromRegExpList(this.name,
-      this.regexps,
-      this.type,
-      this.transform, [
-        this.useForSnippets = true,
-        this.preferForRegexpMatch = false,
-      ]) {
+  ParameterType.fromRegExpList(
+    this.name,
+    this.regexps,
+    this.type,
+    this.transformer, [
+    this.useForSnippets = true,
+    this.preferForRegexpMatch = false,
+    this.isAnonymous = false,
+  ]) {
     checkParameterTypeName(name);
   }
 
@@ -84,6 +91,34 @@ Ruby:
 
   int get weight => type is int ? 1000 : 0;
 
+  T transform(List<String> groupValues) {
+    if (transformer is TransformerAdaptor) {
+      if (groupValues.length > 1) {
+        if (isAnonymous) {
+          throw CucumberExpressionException(
+              'Anonymous ParameterType has multiple capture groups $regexps. '
+              'You can only use a single capture group in an anonymous '
+              'ParameterType.');
+        }
+        throw CucumberExpressionException(
+            'ParameterType $name was registered with '
+            'a Transformer but has multiple capture groups $regexps. '
+            'Did you mean to use a CaptureGroupTransformer?');
+      }
+    }
+
+    try {
+      final groupValueArray = <String>[...groupValues];
+      return transformer.transform(groupValueArray);
+    } on CucumberExpressionException catch (_) {
+      rethrow;
+    } catch (e) {
+      throw CucumberExpressionException(
+          'ParameterType {$name} failed to transform $groupValues to $type',
+          e as Exception);
+    }
+  }
+
   @override
   int get hashCode =>
       name.hashCode ^
@@ -106,12 +141,11 @@ Ruby:
   }
 
   @override
-  int compareTo(ParameterType other) => hashCode-other.hashCode;
+  int compareTo(ParameterType other) => hashCode - other.hashCode;
 }
 
 class _ParameterTypeInvalid extends ParameterType {
-  _ParameterTypeInvalid():
-      super('', '', Null, Transformer.invalid );
+  _ParameterTypeInvalid() : super('', '', Null, Transformer.invalid);
 
   @override
   bool get isInvalid => !isValid;

@@ -83,10 +83,9 @@ class GeneratedExpression {
       dartKeywords.binarySearch(keyword) >= 0;
 
   String get source {
-    final parameterTypeNames = <String>[];
-    final parameterTypesNames2 = parameterTypes.map((e) => e.name);
-    // TODO return String.format(_expressionTemplate, parameterTypeNames.toArray());
-    return _expressionTemplate;
+    int index = -1;
+    final source = _expressionTemplate.replaceAllMapped(r'%s', (match) => parameterTypes[++index].name);
+    return source;
   }
 
   String getParameterName(String typeName, Map<String, int> usageByTypeName) {

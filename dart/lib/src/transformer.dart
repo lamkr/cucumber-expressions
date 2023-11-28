@@ -21,14 +21,15 @@ final class _InvalidTransformer implements Transformer<void, void> {
 }
 
 /// Transformer for a [ParameterType] with (multiple) capture groups.
-abstract class CaptureGroupTransformer<T>
+abstract class CaptureGroupTransformer<In, Out> extends Transformer<List<In>, Out>
 {
   /// Transforms multiple strings into to an object. The strings are taken from
   /// the capture groups in the regular expressions in order. Nested capture
   /// groups are ignored. If a capture group is optional the corresponding element
   /// in the array may be null.
   /// Throws exception if transformation failed.
-  T transform(List<String> args);
+  @override
+  Out transform(List<In> args);
 }
 
 final class TransformerInt implements Transformer<String, int> {
