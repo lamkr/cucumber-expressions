@@ -1,5 +1,6 @@
 import 'package:dart/src/argument.dart';
 import 'package:dart/src/core/locale.dart';
+import 'package:dart/src/cucumber_expression.dart';
 import 'package:dart/src/cucumber_expression_generator.dart';
 import 'package:dart/src/generated_expression.dart';
 import 'package:dart/src/parameter_type_registry.dart';

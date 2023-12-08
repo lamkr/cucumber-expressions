@@ -1,5 +1,4 @@
-import 'package:dart/src/ast/node.dart';
-
+import 'ast/node.dart';
 import 'ast/located.dart';
 
 class CucumberExpressionException implements Exception {
@@ -55,6 +54,31 @@ class CucumberExpressionException implements Exception {
         ),
       );
 
+  static CucumberExpressionException createAlternativeMayNotBeEmpty(
+          Node node, String expression) =>
+      CucumberExpressionException(
+        message(
+          node.start,
+          expression,
+          pointAt(node),
+          'Alternative may not be empty',
+          "If you did not mean to use an alternative you can use '\\/' to escape the the '/'",
+        ),
+      );
+
+  static CucumberExpressionException
+      createAlternativeMayNotExclusivelyContainOptionals(
+              Node node, String expression) =>
+          CucumberExpressionException(
+            message(
+              node.start,
+              expression,
+              pointAt(node),
+              'An alternative may not exclusively contain optionals',
+              "If you did not mean to use an optional you can use '\\(' to escape the the '('",
+            ),
+          );
+
   static String message(int index, String expression, String pointer,
           String problem, String solution) =>
       '${_thisCucumberExpressionHasAProblemAt(index)}\n$expression\n$pointer\n$problem.\n$solution';
@@ -84,7 +108,7 @@ class CucumberExpressionException implements Exception {
 
   @override
   String toString() {
-    if( cause != null ) {
+    if (cause != null) {
       return '$_message\nCaused by: $cause';
     }
     return _message;

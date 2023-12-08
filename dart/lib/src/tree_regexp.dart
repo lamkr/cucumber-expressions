@@ -1,6 +1,8 @@
 import 'package:dart/src/core/stack.dart';
 import 'package:dart/src/group_builder.dart';
 
+import 'group.dart';
+
 /// [TreeRegexp] represents matches as a tree of [Group]
 /// reflecting the nested structure of capture groups in the original
 /// regexp.
@@ -27,12 +29,12 @@ class TreeRegexp {
         final nonCapturing = _isNonCapturingGroup(source, index);
         final groupBuilder = GroupBuilder(index);
         if (nonCapturing) {
-          groupBuilder.nonCapturing = true;
+          groupBuilder.setNonCapturing();
         }
         stack.push(groupBuilder);
       } else if (char == ')'.codeUnits.first && !escaping && !charClass) {
         final gb = stack.pop();
-        if (gb.capturing) {
+        if (gb.isCapturing) {
           gb.source = source.getRange(gb.startIndex + 1, index).toString();
           stack.peek().add(gb);
         } else {
@@ -64,14 +66,13 @@ class TreeRegexp {
     return source.elementAt(index + 3) == '='.codeUnits.first ||
         source.elementAt(index + 3) == '!'.codeUnits.first;
   }
-/* TO BE IMPLEMENTED
-  Group match(CharSequence s) {
-    final matcher = regexp.allMatches(s);
-    if (matcher.isEmpty()) {
+
+  Group match(String input) {
+    final match = regexp.firstMatch(input);
+    if (match == null) {
       return Group.invalid;
     }
-    return groupBuilder.build(matcher, IntStream.rangeClosed(0, matcher.groupCount()).iterator());
+    final groupIndices = <int>[for(int i=0; i < match.groupCount; i++) i].iterator;
+    return groupBuilder.build(match, groupIndices);
   }
-
- */
 }

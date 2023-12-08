@@ -1,4 +1,4 @@
-abstract class NullSafetyObject<T> extends Object
+abstract class NullSafetyObject extends Object
 {
   /// Returns if this instance is valid or not.
   bool get isValid;

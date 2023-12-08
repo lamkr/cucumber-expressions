@@ -13,7 +13,7 @@ class Argument<T> {
       // Regex injection should be be possible any more.
       throw ArgumentError(
           'Group has ${argGroups.length} capture groups, '
-          'but there were ${parameterTypes.length} parameter types');
+              'but there were ${parameterTypes.length} parameter types');
     }
 
     final args = <Argument>[];
@@ -25,9 +25,11 @@ class Argument<T> {
     return args;
   }
 
+
   Argument._(this.group,this.parameterType);
 
   T get value => parameterType.transform(group.values);
 
   Type get type => parameterType.type;
+
 }
