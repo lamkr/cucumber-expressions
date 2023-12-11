@@ -3,6 +3,7 @@ import 'package:dart/src/argument.dart';
 import 'package:dart/src/core/collections.dart';
 import 'package:dart/src/undefined_parameter_type_exception.dart';
 
+import 'ast/cucumber_expression_parser.dart';
 import 'ast/node.dart';
 import 'cucumber_expression_exception.dart';
 import 'expression.dart';

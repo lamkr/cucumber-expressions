@@ -1,5 +1,8 @@
+import 'package:dart/src/ast/token_type.dart';
+
 import 'ast/node.dart';
 import 'ast/located.dart';
+import 'ast/token.dart';
 
 class CucumberExpressionException implements Exception {
   final String _message;
@@ -78,6 +81,19 @@ class CucumberExpressionException implements Exception {
               "If you did not mean to use an optional you can use '\\(' to escape the the '('",
             ),
           );
+
+  static CucumberExpressionException createMissingEndToken(String expression,
+          TokenType beginToken, TokenType endToken, Token current) =>
+      CucumberExpressionException(
+        message(
+          current.start,
+          expression,
+          pointAt(current),
+          "The '${beginToken.symbol}' does not have a matching '${endToken.symbol}'",
+          "If you did not intend to use ${beginToken.purpose} "
+              "you can use '\\${beginToken.symbol}' to escape the ${beginToken.purpose}",
+        ),
+      );
 
   static String message(int index, String expression, String pointer,
           String problem, String solution) =>
