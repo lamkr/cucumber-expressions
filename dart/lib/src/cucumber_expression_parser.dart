@@ -2,10 +2,11 @@ import 'package:dart/src/ast/alternation_parser.dart';
 import 'package:dart/src/ast/token_type.dart';
 import 'package:dart/src/cucumber_expression_exception.dart';
 
-import 'node.dart';
-import 'parser.dart';
-import 'result.dart';
-import 'token.dart';
+import 'cucumber_expression_tokenizer.dart';
+import 'ast/node.dart';
+import 'ast/parser.dart';
+import 'ast/result.dart';
+import 'ast/token.dart';
 
 class CucumberExpressionParser {
 

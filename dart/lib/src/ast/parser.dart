@@ -73,6 +73,6 @@ abstract class Parser {
   }
 
   Result parse(String expression, List<Token> tokens, int current);
-
 }
 
+typedef ParseFunction = Result Function(String expression, List<Token> tokens, int current);

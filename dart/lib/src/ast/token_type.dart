@@ -14,7 +14,8 @@ enum TokenType {
   beginParameter(beginParameterCharacter, "a parameter"),
   endParameter(endParameterCharacter, "a parameter"),
   alternation(alternationCharacter, "alternation"),
-  text;
+  text,
+  invalid;
 
   final String symbol;
   final String purpose;

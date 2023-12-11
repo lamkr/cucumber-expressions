@@ -5,12 +5,14 @@ import 'token_type.dart';
 
 class Token implements Located {
 
+  static const invalid = _InvalidToken();
+
   final String text;
   final TokenType type;
   final int _start;
   final int _end;
 
-  Token(this.text, this.type, this._start, this._end);
+  const Token(this.text, this.type, this._start, this._end);
 
   @override
   int get start => _start;
@@ -81,4 +83,17 @@ class Token implements Located {
     '"start": $start,'
     '"end": $end,'
     '"text": "$text"}';
+
+  @override
+  bool get isInvalid => !isValid;
+
+  @override
+  bool get isValid => true;
+}
+
+class _InvalidToken extends Token {
+  const _InvalidToken(): super('', TokenType.invalid, -1, -1);
+
+  @override
+  bool get isValid => false;
 }

@@ -22,7 +22,7 @@ class CucumberExpressionException implements Exception {
         message(
           node.start,
           expression,
-          pointAt(node),
+          _pointAt(node),
           'An optional may not contain an other optional',
           "If you did not mean to use an optional type you "
               "can use '\\(' to escape the the '('. "
@@ -37,7 +37,7 @@ class CucumberExpressionException implements Exception {
         message(
           node.start,
           expression,
-          pointAt(node),
+          _pointAt(node),
           'An optional must contain some text',
           "If you did not mean to use an optional "
               "you can use '\\(' to escape the the '('",
@@ -50,7 +50,7 @@ class CucumberExpressionException implements Exception {
         message(
           node.start,
           expression,
-          pointAt(node),
+          _pointAt(node),
           'An optional may not contain a parameter type',
           "If you did not mean to use an parameter type "
               "you can use '\\{' to escape the the '{'",
@@ -63,7 +63,7 @@ class CucumberExpressionException implements Exception {
         message(
           node.start,
           expression,
-          pointAt(node),
+          _pointAt(node),
           'Alternative may not be empty',
           "If you did not mean to use an alternative you can use '\\/' to escape the the '/'",
         ),
@@ -76,7 +76,7 @@ class CucumberExpressionException implements Exception {
             message(
               node.start,
               expression,
-              pointAt(node),
+              _pointAt(node),
               'An alternative may not exclusively contain optionals',
               "If you did not mean to use an optional you can use '\\(' to escape the the '('",
             ),
@@ -88,12 +88,35 @@ class CucumberExpressionException implements Exception {
         message(
           current.start,
           expression,
-          pointAt(current),
+          _pointAt(current),
           "The '${beginToken.symbol}' does not have a matching '${endToken.symbol}'",
           "If you did not intend to use ${beginToken.purpose} "
               "you can use '\\${beginToken.symbol}' to escape the ${beginToken.purpose}",
         ),
       );
+
+  static CucumberExpressionException createCantEscape(String expression, int index) =>
+      CucumberExpressionException(
+        message(
+          index,
+          expression,
+          _pointAtIndex(index),
+          "Only the characters '{', '}', '(', ')', '\\', '/' and whitespace can be escaped",
+          r"If you did mean to use an '\' you can use '\\' to escape it",
+        ),
+      );
+
+  static CucumberExpressionException createTheEndOfLineCanNotBeEscaped(String expression) {
+    final index = expression.codeUnits.length - 1;
+    return CucumberExpressionException(
+        message(
+          index,
+          expression,
+          _pointAtIndex(index),
+        'The end of line can not be escaped',
+        r"You can use '\\' to escape the the '\'"
+    ));
+  }
 
   static String message(int index, String expression, String pointer,
           String problem, String solution) =>
@@ -102,7 +125,7 @@ class CucumberExpressionException implements Exception {
   static String _thisCucumberExpressionHasAProblemAt(int index) =>
       'This Cucumber Expression has a problem at column ${index + 1}:\n';
 
-  static String pointAt(Located node) {
+  static String _pointAt(Located node) {
     StringBuffer pointer = StringBuffer(_pointAtIndex(node.start));
     if (node.start + 1 < node.end) {
       for (int i = node.start + 1; i < node.end - 1; i++) {
@@ -129,4 +152,5 @@ class CucumberExpressionException implements Exception {
     }
     return _message;
   }
+
 }
