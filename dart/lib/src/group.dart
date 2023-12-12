@@ -6,14 +6,16 @@ class Group implements NullSafetyObject {
   final int start;
   final int end;
 
-  static const invalid = _InvalidGroup();
+  static final invalid = _InvalidGroup();
 
-  const Group(this.value, this.start, this.end, this.children);
+  Group(this.value, this.start, this.end, List<Group> children)
+    : children = List<Group>.unmodifiable(children);
 
   List<String> get values {
-    List<Group> groups = children.isEmpty ? <Group>[this]
-        : children;
-    return groups.map((group) => group.value).toList();
+    if(children.isEmpty) {
+      return <String>[value];
+    }
+    return children.map((group) => group.value).toList();
   }
 
   @override
@@ -24,7 +26,7 @@ class Group implements NullSafetyObject {
 }
 
 class _InvalidGroup extends Group {
-  const _InvalidGroup() : super('', -1, -1, const <Group>[]);
+  _InvalidGroup() : super('', -1, -1, const <Group>[]);
 
   @override
   bool get isValid => false;

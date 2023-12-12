@@ -39,35 +39,37 @@ Ruby:
   final Transformer transformer;
   final bool useForSnippets;
   final bool preferForRegexpMatch;
+  final bool useRegexpMatchAsStrongTypeHint;
   final bool isAnonymous;
 
-  ParameterType(
-    String name,
-    String regexp,
-    Type type,
-    Transformer transformer, [
-    bool useForSnippets = true,
-    bool preferForRegexpMatch = false,
-    bool isAnonymous = false,
-  ]) : this.fromRegExpList(
-          name,
-          <String>[regexp],
-          type,
-          transformer,
-          useForSnippets,
-          preferForRegexpMatch,
-          isAnonymous,
-        );
+  ParameterType(String name,
+      String regexp,
+      Type type,
+      Transformer transformer, [
+        bool useForSnippets = true,
+        bool preferForRegexpMatch = false,
+        bool useRegexpMatchAsStrongTypeHint = false,
+        bool isAnonymous = false,
+      ]) : this.fromRegExpList(
+    name,
+    <String>[regexp],
+    type,
+    transformer,
+    useForSnippets,
+    preferForRegexpMatch,
+    useRegexpMatchAsStrongTypeHint,
+    isAnonymous,
+  );
 
-  ParameterType.fromRegExpList(
-    this.name,
-    this.regexps,
-    this.type,
-    this.transformer, [
-    this.useForSnippets = true,
-    this.preferForRegexpMatch = false,
-    this.isAnonymous = false,
-  ]) {
+  ParameterType.fromRegExpList(this.name,
+      this.regexps,
+      this.type,
+      this.transformer, [
+        this.useForSnippets = true,
+        this.preferForRegexpMatch = false,
+        this.useRegexpMatchAsStrongTypeHint = false,
+        this.isAnonymous = false,
+      ]) {
     checkParameterTypeName(name);
   }
 
@@ -97,13 +99,13 @@ Ruby:
         if (isAnonymous) {
           throw CucumberExpressionException(
               'Anonymous ParameterType has multiple capture groups $regexps. '
-              'You can only use a single capture group in an anonymous '
-              'ParameterType.');
+                  'You can only use a single capture group in an anonymous '
+                  'ParameterType.');
         }
         throw CucumberExpressionException(
             'ParameterType $name was registered with '
-            'a Transformer but has multiple capture groups $regexps. '
-            'Did you mean to use a CaptureGroupTransformer?');
+                'a Transformer but has multiple capture groups $regexps. '
+                'Did you mean to use a CaptureGroupTransformer?');
       }
     }
 
@@ -142,6 +144,19 @@ Ruby:
 
   @override
   int compareTo(ParameterType other) => hashCode - other.hashCode;
+
+  ParameterType deAnonymize(Type type,
+      Transformer<Object, Object> transformer) {
+    return ParameterType.fromRegExpList(
+      'anonymous',
+      regexps,
+      type,
+      TransformerAdaptor<Object, Object>(transformer),
+      useForSnippets,
+      preferForRegexpMatch,
+      useRegexpMatchAsStrongTypeHint,
+      isAnonymous,);
+  }
 }
 
 class _ParameterTypeInvalid extends ParameterType {

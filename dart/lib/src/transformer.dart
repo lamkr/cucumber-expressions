@@ -50,11 +50,9 @@ final class TransformerString implements Transformer<List<String>, String> {
   @override
   String transform(List<String?> args) {
     final arg = args[0] ?? args[1] ?? '';
-    return internalParameterTransformer.transform(
-        arg
-            .replaceAll(r'\\"', '"')
-            .replaceAll(r"\\'", "'"),
-        String,) as String;
+    return internalParameterTransformer.transform<String>(
+        arg.replaceAll(r'\\"', '"').replaceAll(r"\\'", "'"),
+        ) as String;
   }
 }
 

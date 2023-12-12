@@ -26,7 +26,7 @@ class CucumberExpression implements Expression {
   }
 
   @override
-  List<Argument> match(String text, List<Type> typeHints) {
+  List<Argument> match(String text, [List<Type> typeHints=const <Type>[]]) {
     final group = _treeRegexp.match(text);
     if(group.isInvalid) {
       return <Argument>[];
@@ -47,7 +47,7 @@ class CucumberExpression implements Expression {
   }
 
   @override
-  Pattern get regexp => _regexp.pattern;
+  RegExp get regexp => _treeRegexp.regexp;
 
   @override
   String get source => _source;

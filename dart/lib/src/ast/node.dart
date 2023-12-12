@@ -3,10 +3,10 @@ import 'located.dart';
 
 final class Node implements Located {
   final NodeType type;
-  final List<Node> nodes;
-  final String token;
   final int _start;
   final int _end;
+  final List<Node> nodes;
+  final String token;
 
   Node.withToken(NodeType type, int start, int end, String token)
       : this(type, start, end, <Node>[], token);
@@ -92,6 +92,12 @@ final class Node implements Located {
       type.hashCode ^ token.hashCode ^ _start ^ _end ^ Object.hashAll(nodes);
 
   int compareTo(Node other) => hashCode - other.hashCode;
+
+  @override
+  bool get isInvalid => !isValid;
+
+  @override
+  bool get isValid => true;
 }
 
 enum NodeType {

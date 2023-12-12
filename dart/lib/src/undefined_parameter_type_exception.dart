@@ -10,7 +10,7 @@ class UndefinedParameterTypeException extends CucumberExpressionException {
   static CucumberExpressionException createUndefinedParameterType(
           Node node, String expression, String undefinedParameterTypeName) =>
       UndefinedParameterTypeException._(
-        CucumberExpressionException.message(
+        CucumberExpressionException.buildMessage(
             node.start,
             expression,
             CucumberExpressionException.pointAt(node),

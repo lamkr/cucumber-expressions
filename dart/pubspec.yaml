@@ -10,6 +10,7 @@ environment:
 dependencies:
   collection: ^1.18.0
   intl: ^0.18.1
+  meta: ^1.3.0
   # path: ^1.8.0
   quiver: ^3.2.1
 

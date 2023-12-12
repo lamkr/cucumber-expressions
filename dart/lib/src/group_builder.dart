@@ -24,7 +24,7 @@ class GroupBuilder {
   }
 
   Group build(RegExpMatch match, Iterator<int> groupIndices) {
-    if(groupIndices.moveNext() ) {
+    if (groupIndices.moveNext()) {
       int groupIndex = groupIndices.current;
       final children = <Group>[];
       for (GroupBuilder childGroupBuilder in _groupBuilders) {
@@ -34,4 +34,5 @@ class GroupBuilder {
       return Group(value, match.start, match.end, children);
     }
     return Group.invalid;
+  }
 }
