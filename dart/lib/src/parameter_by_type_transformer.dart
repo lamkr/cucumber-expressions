@@ -3,6 +3,7 @@
 /// anonymous types.
 abstract interface class ParameterByTypeTransformer {
   /// Throws exception if transformation failures.
-  //T? transform<T>(String? fromValue, T toValueType);
-  T? transform<T>(String? fromValue);
+  T transformTo<T>(String fromValue);
+
+  Object transform(String fromValue, Type toValueType, {List<Enum> enumValues = const <Enum>[]});
 }

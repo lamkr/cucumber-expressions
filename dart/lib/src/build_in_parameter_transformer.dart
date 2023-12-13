@@ -11,34 +11,74 @@ class BuiltInParameterTransformer implements ParameterByTypeTransformer {
       : numberParser = NumberParser(locale);
 
   @override
-  T? transform<T>(String? fromValue) =>
-      doTransform<T>(fromValue, T.runtimeType);
-
-  T? doTransform<T>(String? fromValue, Type originalToValueType) {
-    if( fromValue == null ) {
-      return null;
+  Object transform(String fromValue, Type toValueType, {List<Enum> enumValues = const <Enum>[]}) {
+    if (enumValues.isNotEmpty) {
+      final enumType = enumValues[0].toString().split('.')[0];
+      final returnType = toValueType.toString();
+      if (returnType != enumType && returnType != 'Enum') {
+        throw ArgumentError(
+            "The return type must be 'Enum' or the same type as the enum's values: $enumType.");
+      }
+      return _doTransform(fromValue, Enum, enumValues);
     }
-    return switch (T) {
-      String => fromValue,
+    return _doTransform(fromValue, toValueType, enumValues);
+  }
+
+  Object _doTransform(String fromValue, Type toValueType, List<Enum> enumValues) {
+    return switch (toValueType) {
+      Object || String => fromValue,
       bool => bool.parse(fromValue),
       int => int.parse(fromValue),
       double => double.parse(fromValue),
       num => num.parse(fromValue),
       Enum => _convertToEnum(
-          fromValue, T as List<Enum>, originalToValueType as Enum),
-      _ => throw createIllegalArgumentException(fromValue, T.runtimeType),
+        fromValue,
+        enumValues,
+      ),
+      _ => throw createIllegalArgumentException(fromValue, toValueType),
+    };
+  }
+
+  @override
+  T transformTo<T>(String fromValue, {List<Enum> enumValues = const <Enum>[]}) {
+    if (enumValues.isNotEmpty) {
+      final enumType = enumValues[0].toString().split('.')[0];
+      final returnType = T.toString();
+      if (returnType != enumType && returnType != 'Enum') {
+        throw ArgumentError(
+            "The return type must be 'Enum' or the same type as the enum's values: $enumType.");
+      }
+      return _doTransformTo<Enum>(fromValue, enumValues) as T;
+    }
+    return _doTransformTo<T>(fromValue, enumValues);
+  }
+
+  T _doTransformTo<T>(String fromValue, List<Enum> enumValues) {
+    return _doTransform(fromValue, T, enumValues) as T;
+    return switch (T) {
+      Object || String => fromValue,
+      bool => bool.parse(fromValue),
+      int => int.parse(fromValue),
+      double => double.parse(fromValue),
+      num => num.parse(fromValue),
+      Enum => _convertToEnum(
+          fromValue,
+          enumValues,
+        ),
+      _ => throw createIllegalArgumentException(fromValue, T),
     } as T;
   }
 
-  Enum _convertToEnum(
-      String fromValue, List<Enum> values, Enum originalToValueType) {
-    try {
-      return values.byName(fromValue);
-    } catch (e) {
-      throw CucumberExpressionException(
-          "Can't transform '$fromValue' to $originalToValueType. "
-          "Not an enum constant");
+  Enum _convertToEnum(String fromValue, List<Enum> enumValues) {
+    for (final e in enumValues) {
+      if (e.name == fromValue) {
+        return e;
+      }
     }
+    final enumType = enumValues[0].runtimeType.toString();
+    throw CucumberExpressionException(
+        "Can't transform '$fromValue' to $enumType. "
+        "Not an enum constant");
   }
 
   ArgumentError createIllegalArgumentException(
